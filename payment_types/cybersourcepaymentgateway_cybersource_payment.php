@@ -281,7 +281,7 @@
 					$this->update_transaction_status($host_obj, $order, (string)$response->requestID, (string)$response->decision, (string)$response->reasonCode);
 					Shop_OrderStatusLog::create_record($host_obj->order_status, $order);
 					$order->set_payment_processed();
-				}
+				} 
 				
 				$log_fields['response_array']['decision'] = $response->decision;
 				$log_fields['response_array']['reasonCode'] = $response->reasonCode;
@@ -296,21 +296,6 @@
 				
 			} catch (Exception $e) {
 				$log_fields['message'] = $e->getMessage();
-				
-				$this->log_payment_attempt(
-					$order, 
-					$log_fields['message'],
-					$log_fields['status'],
-					$log_fields['request_array'],
-					$log_fields['response_array'], 
-					$log_fields['response_text'],
-					$log_fields['cvv_response_code'],
-					$log_fields['cvv_response_text'],
-					$log_fields['avs_response_code'],
-					$log_fields['avs_response_text']
-				);
-				
-				throw new Phpr_ApplicationException($e->getMessage());
 			}
 			
 			$this->log_payment_attempt(
@@ -325,6 +310,10 @@
 				$log_fields['avs_response_code'],
 				$log_fields['avs_response_text']
 			);
+			
+			if ($response && $response->reasonCode !== self::RESPONSE_CODE_SUCCESS) {
+				throw new Phpr_ApplicationException($log_fields['method']);
+			}
 		}
 
 		public function _log_payment_attempt() {
@@ -359,3 +348,5 @@
 				throw new Phpr_ApplicationException('Status cannot be deleted because it is used in CyberSource payment method.');
 		}
 	}
+
+?>
