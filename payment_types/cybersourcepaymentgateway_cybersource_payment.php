@@ -224,7 +224,7 @@
 			
 			$purchase = (object)(array(
 				'currency' => 'USD',
-				'grandTotalAmount' => $converter->convert(3025, Shop_CurrencySettings::get()->code, 'USD')
+				'grandTotalAmount' => $converter->convert($order->total, Shop_CurrencySettings::get()->code, 'USD')
 			));
 			
 			$request->purchaseTotals = $purchase;
@@ -296,6 +296,21 @@
 				
 			} catch (Exception $e) {
 				$log_fields['message'] = $e->getMessage();
+				
+				$this->log_payment_attempt(
+					$order, 
+					$log_fields['message'],
+					$log_fields['status'],
+					$log_fields['request_array'],
+					$log_fields['response_array'], 
+					$log_fields['response_text'],
+					$log_fields['cvv_response_code'],
+					$log_fields['cvv_response_text'],
+					$log_fields['avs_response_code'],
+					$log_fields['avs_response_text']
+				);
+				
+				throw new Phpr_ApplicationException($e->getMessage());
 			}
 			
 			$this->log_payment_attempt(
@@ -310,8 +325,6 @@
 				$log_fields['avs_response_code'],
 				$log_fields['avs_response_text']
 			);
-			
-			
 		}
 
 		public function _log_payment_attempt() {
@@ -346,5 +359,3 @@
 				throw new Phpr_ApplicationException('Status cannot be deleted because it is used in CyberSource payment method.');
 		}
 	}
-
-?>
