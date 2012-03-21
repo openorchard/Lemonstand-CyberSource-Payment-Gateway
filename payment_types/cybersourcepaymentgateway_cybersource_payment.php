@@ -241,6 +241,8 @@
 				'avs_response_text' => ''
 			);
 			
+			$response = null;
+			
 			try {
 				$response = $soap->runTransaction($request);
 				
@@ -348,5 +350,3 @@
 				throw new Phpr_ApplicationException('Status cannot be deleted because it is used in CyberSource payment method.');
 		}
 	}
-
-?>
